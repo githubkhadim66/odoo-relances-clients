@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_account_relance_level_tree" model="ir.ui.view">
+        <field name="name">account.relance.level.tree</field>
+        <field name="model">account.relance.level</field>
+        <field name="arch" type="xml">
+            <tree string="Niveaux de relance" editable="bottom">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="delay_days"/>
+                <field name="mail_template_id"/>
+                <field name="description" optional="show"/>
+                <field name="company_id" groups="base.group_multi_company" optional="hide"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_account_relance_level_form" model="ir.ui.view">
+        <field name="name">account.relance.level.form</field>
+        <field name="model">account.relance.level</field>
+        <field name="arch" type="xml">
+            <form string="Niveau de relance">
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name" placeholder="Premier rappel"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="delay_days"/>
+                            <field name="mail_template_id"/>
+                        </group>
+                        <group>
+                            <field name="sequence"/>
+                            <field name="active" widget="boolean_toggle"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                    </group>
+                    <group string="Consigne interne">
+                        <field name="description" nolabel="1"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_account_relance_level" model="ir.actions.act_window">
+        <field name="name">Niveaux de relance</field>
+        <field name="res_model">account.relance.level</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+</odoo>

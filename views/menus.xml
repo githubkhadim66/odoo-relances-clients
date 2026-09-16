@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <menuitem id="menu_relance_root"
+              name="Relances"
+              parent="account.menu_finance_receivables"
+              sequence="30"/>
+
+    <menuitem id="menu_relance_list"
+              name="Relances clients"
+              parent="menu_relance_root"
+              action="action_account_relance"
+              sequence="10"/>
+
+    <menuitem id="menu_relance_level"
+              name="Niveaux de relance"
+              parent="account.menu_finance_configuration"
+              action="action_account_relance_level"
+              groups="account.group_account_manager"
+              sequence="90"/>
+
+</odoo>

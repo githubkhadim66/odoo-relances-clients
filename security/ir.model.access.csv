@@ -1,0 +1,6 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_account_relance_user,account.relance.user,model_account_relance,account.group_account_invoice,1,1,1,0
+access_account_relance_manager,account.relance.manager,model_account_relance,account.group_account_manager,1,1,1,1
+access_account_relance_level_user,account.relance.level.user,model_account_relance_level,account.group_account_invoice,1,0,0,0
+access_account_relance_level_manager,account.relance.level.manager,model_account_relance_level,account.group_account_manager,1,1,1,1
+access_account_relance_wizard,account.relance.wizard,model_account_relance_wizard,account.group_account_invoice,1,1,1,1

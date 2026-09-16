@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_move_form_relance" model="ir.ui.view">
+        <field name="name">account.move.form.relance</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_move_form"/>
+        <field name="arch" type="xml">
+            <div name="button_box" position="inside">
+                <button name="action_view_relances" type="object" class="oe_stat_button"
+                        icon="fa-bell-o" invisible="relance_count == 0">
+                    <field name="relance_count" widget="statinfo" string="Relances"/>
+                </button>
+            </div>
+            <field name="invoice_date_due" position="after">
+                <field name="days_overdue" invisible="days_overdue == 0"/>
+            </field>
+        </field>
+    </record>
+
+    <record id="view_out_invoice_tree_relance" model="ir.ui.view">
+        <field name="name">account.move.tree.relance</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_out_invoice_tree"/>
+        <field name="arch" type="xml">
+            <field name="invoice_date_due" position="after">
+                <field name="days_overdue" optional="show"/>
+                <field name="relance_count" optional="hide" string="Relances"/>
+            </field>
+        </field>
+    </record>
+
+</odoo>

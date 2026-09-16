@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_account_relance_tree" model="ir.ui.view">
+        <field name="name">account.relance.tree</field>
+        <field name="model">account.relance</field>
+        <field name="arch" type="xml">
+            <tree string="Relances" decoration-danger="days_overdue &gt; 60" decoration-warning="days_overdue &gt; 30 and days_overdue &lt;= 60" decoration-muted="state in ('done', 'cancel')">
+                <field name="name"/>
+                <field name="date_relance"/>
+                <field name="partner_id"/>
+                <field name="move_id"/>
+                <field name="level_id"/>
+                <field name="date_due"/>
+                <field name="days_overdue"/>
+                <field name="amount_residual" sum="Total dû"/>
+                <field name="currency_id" column_invisible="True"/>
+                <field name="user_id" widget="many2one_avatar_user"/>
+                <field name="state" widget="badge" decoration-info="state == 'sent'" decoration-success="state == 'done'"/>
+                <field name="company_id" groups="base.group_multi_company" optional="hide"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_account_relance_form" model="ir.ui.view">
+        <field name="name">account.relance.form</field>
+        <field name="model">account.relance</field>
+        <field name="arch" type="xml">
+            <form string="Relance">
+                <header>
+                    <button name="action_send" type="object" string="Envoyer la relance"
+                            class="oe_highlight" invisible="state != 'draft'"/>
+                    <button name="action_done" type="object" string="Marquer réglée"
+                            invisible="state not in ('draft', 'sent')"/>
+                    <button name="action_cancel" type="object" string="Annuler"
+                            invisible="state in ('done', 'cancel')"/>
+                    <button name="action_draft" type="object" string="Remettre en brouillon"
+                            invisible="state != 'cancel'"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,sent,done"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_open_move" type="object" class="oe_stat_button" icon="fa-file-text-o">
+                            <div class="o_stat_info">
+                                <span class="o_stat_text">Facture</span>
+                            </div>
+                        </button>
+                    </div>
+                    <div class="oe_title">
+                        <h1><field name="name" readonly="1"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="move_id" readonly="state != 'draft'"/>
+                            <field name="partner_id"/>
+                            <field name="level_id" readonly="state != 'draft'"/>
+                            <field name="user_id" widget="many2one_avatar_user"/>
+                        </group>
+                        <group>
+                            <field name="date_relance"/>
+                            <field name="date_due"/>
+                            <field name="days_overdue"/>
+                            <field name="amount_residual"/>
+                            <field name="currency_id" invisible="1"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Notes" name="notes">
+                            <field name="note" placeholder="Suivi de l'échange avec le client..."/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_account_relance_search" model="ir.ui.view">
+        <field name="name">account.relance.search</field>
+        <field name="model">account.relance</field>
+        <field name="arch" type="xml">
+            <search string="Relances">
+                <field name="name"/>
+                <field name="partner_id"/>
+                <field name="move_id"/>
+                <field name="level_id"/>
+                <filter name="filter_draft" string="Brouillon" domain="[('state', '=', 'draft')]"/>
+                <filter name="filter_sent" string="Envoyées" domain="[('state', '=', 'sent')]"/>
+                <filter name="filter_open" string="En cours" domain="[('state', 'in', ('draft', 'sent'))]"/>
+                <separator/>
+                <filter name="filter_my" string="Mes relances" domain="[('user_id', '=', uid)]"/>
+                <separator/>
+                <filter name="filter_overdue_30" string="Plus de 30 jours de retard"
+                        domain="[('date_due', '&lt;', (context_today() - datetime.timedelta(days=30)).strftime('%Y-%m-%d'))]"/>
+                <group expand="0" string="Regrouper par">
+                    <filter name="group_partner" string="Client" context="{'group_by': 'partner_id'}"/>
+                    <filter name="group_level" string="Niveau" context="{'group_by': 'level_id'}"/>
+                    <filter name="group_state" string="État" context="{'group_by': 'state'}"/>
+                    <filter name="group_date" string="Date de relance" context="{'group_by': 'date_relance'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_account_relance" model="ir.actions.act_window">
+        <field name="name">Relances clients</field>
+        <field name="res_model">account.relance</field>
+        <field name="view_mode">tree,form</field>
+        <field name="context">{'search_default_filter_open': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Aucune relance pour l'instant</p>
+            <p>Créez une relance depuis une facture client échue, ou laissez la tâche planifiée les générer.</p>
+        </field>
+    </record>
+
+</odoo>

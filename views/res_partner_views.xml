@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_partner_form_relance" model="ir.ui.view">
+        <field name="name">res.partner.form.relance</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+            <div name="button_box" position="inside">
+                <button name="action_view_partner_relances" type="object" class="oe_stat_button"
+                        icon="fa-bell-o" groups="account.group_account_invoice"
+                        invisible="relance_count == 0">
+                    <field name="relance_count" widget="statinfo" string="Relances"/>
+                </button>
+            </div>
+        </field>
+    </record>
+
+</odoo>
