@@ -1,0 +1,36 @@
+.o_relance_dashboard {
+    height: 100%;
+    overflow: auto;
+
+    .o_relance_card {
+        cursor: pointer;
+        transition: transform 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+
+        &:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+        }
+    }
+
+    .o_relance_card_label {
+        font-size: 0.8125rem;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+        opacity: 0.65;
+    }
+
+    .o_relance_card_amount {
+        font-size: 1.75rem;
+        font-weight: 600;
+        line-height: 1.2;
+    }
+
+    .o_relance_card_total .o_relance_card_amount {
+        font-size: 2.25rem;
+    }
+
+    .o_relance_card_hint {
+        font-size: 0.8125rem;
+        opacity: 0.65;
+    }
+}

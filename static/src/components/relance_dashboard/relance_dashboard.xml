@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="account_relance_client.RelanceDashboard">
+        <div class="o_relance_dashboard p-4">
+
+            <div t-if="!state.data" class="text-muted">
+                Chargement du tableau de bord...
+            </div>
+
+            <t t-else="">
+                <h2 class="mb-4">Relances clients</h2>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-12 col-lg-4">
+                        <div class="o_relance_card o_relance_card_total card h-100"
+                             role="button"
+                             t-on-click="() => this.openCard(state.data.total)">
+                            <div class="card-body">
+                                <div class="o_relance_card_label" t-out="state.data.total.label"/>
+                                <div class="o_relance_card_amount" t-out="state.data.total.amount"/>
+                                <div class="o_relance_card_hint">
+                                    <t t-out="state.data.total.count"/> facture(s) échue(s)
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-lg-8">
+                        <div class="row g-3 h-100">
+                            <div class="col-12 col-md-4"
+                                 t-foreach="state.data.aging"
+                                 t-as="card"
+                                 t-key="card.label">
+                                <div class="o_relance_card card h-100"
+                                     role="button"
+                                     t-on-click="() => this.openCard(card)">
+                                    <div class="card-body">
+                                        <div class="o_relance_card_label" t-out="card.label"/>
+                                        <div class="o_relance_card_amount" t-out="card.amount"/>
+                                        <div class="o_relance_card_hint">
+                                            <t t-out="card.count"/> facture(s)
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row g-3">
+                    <div class="col-12 col-md-6"
+                         t-foreach="state.data.relances"
+                         t-as="card"
+                         t-key="card.label">
+                        <div class="o_relance_card card h-100"
+                             role="button"
+                             t-on-click="() => this.openCard(card)">
+                            <div class="card-body">
+                                <div class="o_relance_card_label" t-out="card.label"/>
+                                <div class="o_relance_card_amount" t-out="card.count"/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </t>
+
+        </div>
+    </t>
+
+</templates>

@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="action_report_relance" model="ir.actions.report">
+        <field name="name">Lettre de relance</field>
+        <field name="model">account.relance</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">account_relance_client.report_relance</field>
+        <field name="report_file">account_relance_client.report_relance</field>
+        <field name="print_report_name">'Relance - %s' % object.name</field>
+        <!-- binding_model_id fait apparaître le rapport dans le menu Imprimer
+             du formulaire et de la liste des relances. -->
+        <field name="binding_model_id" ref="model_account_relance"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <template id="report_relance">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="doc">
+                <!-- La lettre part dans la langue du client, et l'en-tête est
+                     celui de la société qui a émis la facture. -->
+                <t t-set="doc" t-value="doc.with_context(lang=doc.partner_id.lang)"/>
+                <t t-set="company" t-value="doc.company_id"/>
+                <t t-call="web.external_layout">
+                    <div class="page">
+
+                        <div class="row">
+                            <div class="col-5 offset-7">
+                                <address t-field="doc.partner_id"
+                                         t-options='{"widget": "contact", "fields": ["address", "name"], "no_marker": true}'/>
+                            </div>
+                        </div>
+
+                        <p class="text-end mt-4">
+                            Le <span t-field="doc.date_relance"/>
+                        </p>
+
+                        <h4 class="mt-4">
+                            <span t-field="doc.level_id.name"/> :
+                            facture <span t-field="doc.move_id.name"/>
+                        </h4>
+
+                        <p class="mt-4">
+                            Madame, Monsieur,
+                        </p>
+
+                        <p>
+                            Sauf erreur de notre part, la facture reprise ci-dessous
+                            reste impayée à ce jour, alors que son échéance est dépassée
+                            de <strong><span t-out="doc.days_overdue"/> jours</strong>.
+                        </p>
+
+                        <table class="table table-sm mt-4">
+                            <thead>
+                                <tr>
+                                    <th>Facture</th>
+                                    <th>Date</th>
+                                    <th>Échéance</th>
+                                    <th class="text-end">Retard</th>
+                                    <th class="text-end">Montant restant dû</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><span t-field="doc.move_id.name"/></td>
+                                    <td><span t-field="doc.move_id.invoice_date"/></td>
+                                    <td><span t-field="doc.date_due"/></td>
+                                    <td class="text-end"><span t-out="doc.days_overdue"/> j</td>
+                                    <td class="text-end"><span t-field="doc.amount_residual"/></td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <p class="mt-4">
+                            Nous vous remercions de bien vouloir procéder au règlement
+                            dans les meilleurs délais. Si le paiement a été effectué
+                            entre-temps, merci de ne pas tenir compte de ce courrier.
+                        </p>
+
+                        <!-- Au-delà de 30 jours, le ton passe de la relance simple
+                             à l'annonce des suites données au dossier. -->
+                        <p t-if="doc.days_overdue &gt; 30">
+                            À défaut de règlement ou de prise de contact de votre part
+                            sous huitaine, nous serons contraints de confier ce dossier
+                            à notre service de recouvrement, et des pénalités de retard
+                            pourront être appliquées conformément à nos conditions
+                            générales de vente.
+                        </p>
+
+                        <p class="mt-4">
+                            Nous restons à votre disposition pour toute question
+                            relative à cette facture.
+                        </p>
+
+                        <p class="mt-4">
+                            Veuillez agréer, Madame, Monsieur, l'expression de nos
+                            salutations distinguées.
+                        </p>
+
+                        <p class="mt-4">
+                            <span t-field="doc.user_id.name"/><br/>
+                            <span t-field="doc.company_id.name"/>
+                        </p>
+
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+
+</odoo>

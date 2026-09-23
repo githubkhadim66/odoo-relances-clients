@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Le tag correspond au nom sous lequel le composant OWL est enregistré
+         dans le registre "actions" (relance_dashboard.js). -->
+    <record id="action_relance_dashboard" model="ir.actions.client">
+        <field name="name">Tableau de bord des relances</field>
+        <field name="tag">account_relance_client.relance_dashboard</field>
+    </record>
+
+</odoo>

@@ -6,6 +6,12 @@
               parent="account.menu_finance_receivables"
               sequence="30"/>
 
+    <menuitem id="menu_relance_dashboard"
+              name="Tableau de bord"
+              parent="menu_relance_root"
+              action="action_relance_dashboard"
+              sequence="5"/>
+
     <menuitem id="menu_relance_list"
               name="Relances clients"
               parent="menu_relance_root"

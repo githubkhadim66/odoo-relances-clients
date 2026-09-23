@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
+from datetime import timedelta
+
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError
+from odoo.tools.misc import format_amount
 
 
 class AccountRelance(models.Model):
@@ -218,3 +221,98 @@ class AccountRelance(models.Model):
                 }
             )
         return created
+
+    # ------------------------------------------------------------------
+    # Tableau de bord
+    # ------------------------------------------------------------------
+    @api.model
+    def get_dashboard_data(self):
+        """Alimente le composant OWL du tableau de bord.
+
+        Les factures échues sont lues une seule fois puis réparties par
+        tranche d'ancienneté en Python, plutôt qu'avec une requête par
+        tranche. Les montants sont formatés ici : le composant n'a pas à
+        reproduire les règles de devise et de langue d'Odoo.
+
+        Chaque carte embarque le domaine de la liste qu'elle ouvre, pour
+        que le filtre affiché corresponde exactement au chiffre annoncé.
+        """
+        today = fields.Date.context_today(self)
+        today_str = fields.Date.to_string(today)
+        company = self.env.company
+        currency = company.currency_id
+
+        # Tableau de bord de la société courante : c'est ce qui rend le
+        # total additionnable, amount_residual_signed étant exprimé dans la
+        # devise de la société de la facture.
+        move_domain = [
+            ("move_type", "=", "out_invoice"),
+            ("state", "=", "posted"),
+            ("payment_state", "in", ("not_paid", "partial")),
+            ("invoice_date_due", "!=", False),
+            ("invoice_date_due", "<", today_str),
+            ("company_id", "=", company.id),
+        ]
+        moves = self.env["account.move"].search(move_domain)
+
+        def overdue_days(move):
+            return (today - move.invoice_date_due).days
+
+        def move_card(label, records, domain):
+            return {
+                "label": label,
+                "amount": format_amount(
+                    self.env, sum(records.mapped("amount_residual_signed")), currency
+                ),
+                "count": len(records),
+                "res_model": "account.move",
+                "domain": domain,
+            }
+
+        aging = []
+        for label, low, high in (
+            (_("1 à 30 jours"), 1, 30),
+            (_("31 à 60 jours"), 31, 60),
+            (_("Plus de 60 jours"), 61, None),
+        ):
+            domain = move_domain + [
+                (
+                    "invoice_date_due",
+                    "<=",
+                    fields.Date.to_string(today - timedelta(days=low)),
+                )
+            ]
+            if high is not None:
+                domain.append(
+                    (
+                        "invoice_date_due",
+                        ">=",
+                        fields.Date.to_string(today - timedelta(days=high)),
+                    )
+                )
+            records = moves.filtered(
+                lambda m, low=low, high=high: low <= overdue_days(m)
+                and (high is None or overdue_days(m) <= high)
+            )
+            aging.append(move_card(label, records, domain))
+
+        relances = []
+        for label, state in (
+            (_("Relances à envoyer"), "draft"),
+            (_("Relances en attente"), "sent"),
+        ):
+            domain = [("state", "=", state), ("company_id", "=", company.id)]
+            relances.append(
+                {
+                    "label": label,
+                    "count": self.search_count(domain),
+                    "res_model": "account.relance",
+                    "domain": domain,
+                }
+            )
+
+        return {
+            "total": move_card(_("Encours échu"), moves, move_domain),
+            "aging": aging,
+            "relances": relances,
+        }

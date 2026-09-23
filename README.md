@@ -26,6 +26,13 @@ module couvre le besoin de base sur une installation Community.
 - **Indicateurs** : jours de retard sur la facture, nombre de relances en
   cours et encours échu sur la fiche client.
 - **Traçabilité** : `mail.thread` et `mail.activity.mixin` sur la relance.
+- **Lettre de relance PDF** : rapport QWeb imprimable depuis la relance, avec
+  l'en-tête de la société, le détail de la facture et un paragraphe
+  supplémentaire au-delà de 30 jours de retard.
+- **Tableau de bord** : composant OWL affichant l'encours échu total, sa
+  répartition par ancienneté (1-30, 31-60, plus de 60 jours) et le nombre de
+  relances à envoyer ou en attente. Chaque carte ouvre la liste
+  correspondante.
 
 ## Installation
 
@@ -62,6 +69,31 @@ la même relance, y compris en cas de double exécution du cron.
 **Niveau retenu par le cron.** Les niveaux sont parcourus par retard
 décroissant et le premier atteint est retenu, de sorte qu'une facture en
 retard de 90 jours reçoive la mise en demeure et non le premier rappel.
+
+## Le rapport QWeb
+
+Fichier `report/relance_report.xml`. Deux éléments :
+
+- l'action `ir.actions.report`, qui déclare le PDF et, grâce à
+  `binding_model_id`, le fait apparaître dans le menu Imprimer ;
+- le template, qui appelle `web.html_container` puis `web.external_layout`
+  pour hériter de l'en-tête et du pied de page de la société.
+
+`t-field` affiche un champ avec le formatage d'Odoo (date dans la langue de
+l'utilisateur, montant avec sa devise) ; `t-out` affiche une valeur brute ;
+`t-if` conditionne un bloc ; `t-foreach` boucle sur les enregistrements.
+
+## Le composant OWL
+
+Fichiers dans `static/src/components/relance_dashboard/`, chargés via la clé
+`assets` du manifeste dans le bundle `web.assets_backend`.
+
+Le composant utilise `useService("orm")` pour appeler la méthode Python
+`get_dashboard_data`, `useState` pour l'état réactif et `onWillStart` pour
+charger les données avant le premier affichage. Il est enregistré dans le
+registre `actions`, puis déclaré côté serveur par un `ir.actions.client` dont
+le `tag` correspond. Les montants sont formatés côté serveur avec
+`format_amount` pour respecter devise et langue sans dupliquer la logique.
 
 ## Compatibilité
 
